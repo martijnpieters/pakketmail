@@ -4,8 +4,14 @@ namespace MartijnPieters\PakketMail;
 
 class Shipment
 {
+    const PAKKETMAIL_PRODUCT_UPS = 10;
+    const PAKKETMAIL_PRODUCT_DPD = 13;
+    const PAKKETMAIL_PRODUCT_POSTNL_BRIEVENBUSPAKJE = 15;
+    const PAKKETMAIL_PRODUCT_POSTNL_PAKKETTEN = 20;
+
     private static $parameterMapping = [
-        'PakketMailProduct' => 'pakketMailProduct',
+        'PakketmailProduct' => 'pakketMailProduct',
+        'Transporter' => 'transporter',
         'ClientSub' => 'clientSub',
         'ClientReference' => 'clientReference',
         'Name1' => 'name1',
@@ -31,6 +37,7 @@ class Shipment
     ];
 
     private $pakketMailProduct;
+    private $transporter;
     private $clientSub;
     private $clientReference;
     private $name1;
@@ -54,10 +61,13 @@ class Shipment
     private $description;
     private $hsCode;
 
+    /** @var string[][] */
+    private $warnings = [];
+
     /**
      * @param array $properties
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(array $properties)
     {
@@ -65,7 +75,7 @@ class Shipment
             if (property_exists($this, $property)) {
                 $this->$property = $value;
             } else {
-                throw new \Exception(sprintf('Property "%s" does not exist.', $property));
+                throw new Exception(sprintf('Property "%s" does not exist.', $property));
             }
         }
     }
@@ -86,5 +96,37 @@ class Shipment
         }
 
         return $xml;
+    }
+
+    /**
+     * @param string[][] $warnings
+     */
+    public function setWarnings(array $warnings)
+    {
+        $this->warnings = $warnings;
+    }
+
+    /**
+     * @return string[][]
+     */
+    public function getWarnings(): array
+    {
+        return $this->warnings;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasWarnings(): bool
+    {
+        return is_array($this->warnings) && count($this->warnings) > 0;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClientReference()
+    {
+        return $this->clientReference;
     }
 }

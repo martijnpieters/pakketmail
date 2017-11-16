@@ -8,14 +8,16 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Martijn Pieters
  */
-class PakketMailTest extends TestCase
+class RequestTest extends TestCase
 {
     const API_USERNAME = 'username';
     const API_PASSWORD = 'password';
+    const SHIPMENT_CLIENT_REFERENCE = 'A123';
     const SHIPMENT_PROPERTIES = [
-        'clientReference' => 'A123',
+        'pakketMailProduct' => PakketMail\Shipment::PAKKETMAIL_PRODUCT_DPD,
+        'clientReference' => self::SHIPMENT_CLIENT_REFERENCE,
         'name1' => 'John Doe',
-        'streetName' => 'Foo Street',
+        'streetName' => 'Main street',
         'city' => 'Foo City',
         'postalCode' => '1234 AB',
         'country' => 'NLD',
@@ -23,39 +25,38 @@ class PakketMailTest extends TestCase
 
     public function testDevelopmentModeInXml()
     {
-        $pakketMail = new PakketMail\PakketMail(self::API_USERNAME, self::API_PASSWORD, true);
-        $xmlString = $this->invokePrivateMethod($pakketMail, 'generateRequestXml')->asXML();
+        $pakketMailRequest = new PakketMail\Request(self::API_USERNAME, self::API_PASSWORD, true);
+        $xmlString = $this->invokePrivateMethod($pakketMailRequest, 'generateRequestXml')->asXML();
 
         $this->assertContains('<Nosave>1</Nosave>', $xmlString);
-
-        var_dump($xmlString);
     }
 
     public function testProductionModeInXml()
     {
-        $pakketMail = new PakketMail\PakketMail(self::API_USERNAME, self::API_PASSWORD, false);
-        $xmlString = $this->invokePrivateMethod($pakketMail, 'generateRequestXml')->asXML();
+        $pakketMailRequest = new PakketMail\Request(self::API_USERNAME, self::API_PASSWORD, false);
+        $xmlString = $this->invokePrivateMethod($pakketMailRequest, 'generateRequestXml')->asXML();
 
         $this->assertContains('<Nosave>0</Nosave>', $xmlString);
     }
 
     public function testAddShipment()
     {
-        $pakketMail = new PakketMail\PakketMail(self::API_USERNAME, self::API_PASSWORD, true);
+        $pakketMailRequest = new PakketMail\Request(self::API_USERNAME, self::API_PASSWORD, true);
         $shipmentA = new PakketMail\Shipment(self::SHIPMENT_PROPERTIES);
-        $pakketMail->addShipment($shipmentA);
-        $shipmentB = new PakketMail\Shipment(self::SHIPMENT_PROPERTIES);
-        $pakketMail->addShipment($shipmentB);
+        $pakketMailRequest->addShipment($shipmentA);
 
-        $this->assertCount(2, $pakketMail->getShipments());
+        $this->assertCount(1, $pakketMailRequest->getShipments());
     }
 
     public function testPostRequest()
     {
-        $pakketMail = new PakketMail\PakketMail(self::API_USERNAME, self::API_PASSWORD, true);
+        $pakketMailRequest = new PakketMail\Request(self::API_USERNAME, self::API_PASSWORD, true);
         $shipmentA = new PakketMail\Shipment(self::SHIPMENT_PROPERTIES);
-        $pakketMail->addShipment($shipmentA);
-        $pakketMail->sendPostRequest();
+        $pakketMailRequest->addShipment($shipmentA);
+        $pakketMailRequest->sendToApi();
+        $shipments = $pakketMailRequest->getShipments();
+
+        $this->assertCount(4, $shipments[self::SHIPMENT_CLIENT_REFERENCE]->getWarnings());
     }
 
     /**
