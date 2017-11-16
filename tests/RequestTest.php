@@ -12,6 +12,7 @@ class RequestTest extends TestCase
 {
     const API_USERNAME = 'username';
     const API_PASSWORD = 'password';
+    const DAY_CLOSE_URL = 'https://mijn.pakketmail.nl/zending/dagafsluiting';
     const SHIPMENT_CLIENT_REFERENCE = 'A123';
     const SHIPMENT_PROPERTIES = [
         'pakketMailProduct' => PakketMail\Shipment::PAKKETMAIL_PRODUCT_DPD,
@@ -48,15 +49,25 @@ class RequestTest extends TestCase
         $this->assertCount(1, $pakketMailRequest->getShipments());
     }
 
-    public function testPostRequest()
+    public function testSendToApi()
+    {
+        $pakketMailRequest = new PakketMail\Request(self::API_USERNAME, self::API_PASSWORD, true);
+        $shipmentA = new PakketMail\Shipment(self::SHIPMENT_PROPERTIES);
+        $pakketMailRequest->addShipment($shipmentA);
+        $response = $pakketMailRequest->sendToApi();
+        $shipments = $pakketMailRequest->getShipments();
+
+        $this->assertCount(4, $shipments[self::SHIPMENT_CLIENT_REFERENCE]->getWarnings());
+    }
+
+    public function testDayCloseUrl()
     {
         $pakketMailRequest = new PakketMail\Request(self::API_USERNAME, self::API_PASSWORD, true);
         $shipmentA = new PakketMail\Shipment(self::SHIPMENT_PROPERTIES);
         $pakketMailRequest->addShipment($shipmentA);
         $pakketMailRequest->sendToApi();
-        $shipments = $pakketMailRequest->getShipments();
 
-        $this->assertCount(4, $shipments[self::SHIPMENT_CLIENT_REFERENCE]->getWarnings());
+        $this->assertEquals(self::DAY_CLOSE_URL, $pakketMailRequest->getDayCloseUrl());
     }
 
     /**

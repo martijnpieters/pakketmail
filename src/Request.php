@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Response;
 class Request
 {
     const PAKKETMAIL_ENDPOINT = 'https://api.pakketmail.nl';
+    const PAKKETMAIL_DAY_CLOSE_URL = 'https://mijn.pakketmail.nl/zending/dagafsluiting';
     const PAKKETMAIL_SYSTEM_ID = 19;
     const PAKKETMAIL_API_VERSION = '2.0';
     const PAKKETMAIL_NOSAVE_FALSE = 0;
@@ -29,6 +30,9 @@ class Request
 
     /** @var Shipment[] */
     private $shipments = [];
+
+    /** @var string */
+    private $dayCloseUrl;
 
     /**
      * @param string $username
@@ -65,6 +69,14 @@ class Request
     }
 
     /**
+     * @return string
+     */
+    public function getDayCloseUrl(): string
+    {
+        return $this->dayCloseUrl;
+    }
+
+    /**
      * @return Response
      */
     public function sendToApi(): Response
@@ -90,6 +102,7 @@ class Request
         $this->parseResponseStatusCode($response);
         $this->parseResponseErrors($response);
         $this->parseResponseShipments($response);
+        $this->parseResponseDayCloseUrl($response);
 
         return $response;
     }
@@ -236,6 +249,17 @@ class Request
             } else {
                 throw new Exception(sprintf('Cannot find shipment with reference "%s".', $clientReference));
             }
+        }
+    }
+
+    private function parseResponseDayCloseUrl($response)
+    {
+        $responseArray = $this->getResponseArray($response);
+
+        if (isset($responseArray['DaycloseSite'])) {
+            $this->dayCloseUrl = $responseArray['DaycloseSite'];
+        } else {
+            $this->dayCloseUrl = self::PAKKETMAIL_DAY_CLOSE_URL;
         }
     }
 }
