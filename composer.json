@@ -1,0 +1,25 @@
+{
+    "name": "martijnpieters/pakketmail",
+    "description": "PakketMail SDK for API version 2.0",
+    "keywords": ["pakketmail", "sdk", "api"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Martijn Pieters",
+            "email": "martijn@pieters.me"
+        }
+    ],
+    "type": "project",
+    "require": {
+		"php": ">=7.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "^6.4"
+    },
+	"autoload": {
+        "psr-4": {
+            "MartijnPieters\\PakketMail\\": "src/"
+        }
+    }
+}
