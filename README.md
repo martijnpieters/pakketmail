@@ -16,10 +16,12 @@ $ composer require martijnpieters/pakketmail:dev-master
 
 ## Getting started
 
-Require the Composer autoloader.
+Require the Composer autoloader and include the PakketMail namespace.
 
 ```php
 require 'vendor/autoload.php';
+
+use MartijnPieters\PakketMail;
 ```
 
 Initialize a request with your username and password, and optionally the development flag `true`.
