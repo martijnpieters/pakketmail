@@ -1,6 +1,7 @@
 {
     "name": "martijnpieters/pakketmail",
     "description": "PakketMail SDK for API version 2.0",
+    "homepage": "https://github.com/martijnpieters/pakketmail",
     "keywords": [
         "pakketmail",
         "sdk",
@@ -13,9 +14,9 @@
             "email": "martijn@pieters.me"
         }
     ],
-    "type": "project",
     "require": {
         "php": ">=7.0",
+        "ext-curl": "*",
         "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
